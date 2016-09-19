@@ -61,7 +61,7 @@ class DescriptorHelper extends Helper
     {
         $options = array_merge(array(
             'raw_text' => false,
-            'format' => 'md',
+            'format' => 'txt',
         ), $options);
 
         if (!isset($this->descriptors[$options['format']])) {
