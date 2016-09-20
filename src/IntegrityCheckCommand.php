@@ -23,10 +23,10 @@ class IntegrityCheckCommand extends Command
     protected function configure()
     {
         $this->setName('wp-integrity-check')
-            ->setDescription('Check integrity of all Wordpress installation in a specific path.')
+            ->setDescription('Check integrity of all WordPress installation in a specific path.')
             ->setDefinition(array(
-            new InputArgument('path', InputArgument::OPTIONAL, 'The path of containing Wordpress installation that would be scanned.'),
-            new InputOption('depth', null, InputOption::VALUE_REQUIRED, 'The maximum depth to scan for Wordpress installation')
+            new InputArgument('path', InputArgument::OPTIONAL, 'The path of containing WordPress installation that would be scanned.'),
+            new InputOption('depth', null, InputOption::VALUE_REQUIRED, 'The maximum depth to scan for WordPress installation')
         ));
     }
 
@@ -55,7 +55,7 @@ class IntegrityCheckCommand extends Command
         $depth = $input->getOption('depth');
         
         // Look for wp-version.php in the path
-        $output->writeln('<info>Searching for Wordpress installation in the path: ' . realpath($path) . '</info>');
+        $output->writeln('<info>Searching for WordPress installation in the path: ' . realpath($path) . '</info>');
         $finder = new Finder();
         $finder->files()
             ->ignoreVCS(true)
@@ -73,13 +73,13 @@ class IntegrityCheckCommand extends Command
         if ($files->count() > 0) {
             foreach ($files as $file) {
                 
-                // We have found a wordpress, so which version is it?
+                // We have found a WordPress, so which version is it?
                 $realPath = $file->getRealPath();
                 $wpPath = dirname(dirname($realPath)) . DS;
                 $content = $file->getContents();
                 if (preg_match('/\$wp_version = \'(.*)\';/', $content, $matches)) {
                     $version = $matches[1];
-                    $output->writeln('Wordpress found in path "' . $wpPath . '" version ' . $version);
+                    $output->writeln('WordPress found in path "' . $wpPath . '" version ' . $version);
                     
                     $this->checkCoreIntegrity($wpPath, $version, $output);
                     $this->checkPluginsIntegrity($wpPath, $output);
@@ -93,12 +93,12 @@ class IntegrityCheckCommand extends Command
     }
 
     /**
-     * Check wordpress integrity core
+     * Check WordPress integrity core
      * 
      * @param string $wpPath
-     *            the wordpress installation path
+     *            the WordPress installation path
      * @param string $version
-     *            the wordpress installed version
+     *            the WordPress installed version
      * @param OutputInterface $output            
      */
     private function checkCoreIntegrity($wpPath, $version, OutputInterface $output)
@@ -168,15 +168,15 @@ class IntegrityCheckCommand extends Command
                 $output->writeln("OK");
             }
         } else {
-            $output->writeln('<error>Cannot check integrity because the Wordpress version could not be found!</error>');
+            $output->writeln('<error>Cannot check integrity because the WordPress version could not be found!</error>');
         }
     }
 
     /**
-     * Check wordpress plugins integrity
+     * Check WordPress plugins integrity
      * 
      * @param string $wpPath
-     *            the wordpress installation path
+     *            the WordPress installation path
      * @param OutputInterface $output            
      */
     private function checkPluginsIntegrity($wpPath, OutputInterface $output)
@@ -301,7 +301,7 @@ class IntegrityCheckCommand extends Command
     }
 
     /**
-     * Ensure that we have the Wordpress installation files with a valid checksum
+     * Ensure that we have the WordPress installation files with a valid checksum
      *
      * @param string $version
      * @param string $try
