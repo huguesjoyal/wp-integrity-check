@@ -39,4 +39,3 @@ Check integrity of all Wordpress installation in a specific path.
 * Name: `--version`
 * Shortcut: `-V`
 * Description: Display this application version
--tp
