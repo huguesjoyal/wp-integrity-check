@@ -50,8 +50,7 @@ class IntegrityCheckCommand extends Command
             return false;
         }
         
-        // Get the fix option
-        $fix = $input->getOption('fix');
+        // Get the option
         $depth = $input->getOption('depth');
         
         // Look for wp-version.php in the path
