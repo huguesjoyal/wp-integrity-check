@@ -6,6 +6,7 @@ wp-integrity-check help system administrator to discover WordPress websites that
 This software is a tools to help us find WordPress integrity problems.
 
 * Description: Check integrity of all WordPress installation in a specific path.
+* Require PHP 5.4 or more
 * Usage:
 
   * `./wp-integrity-check.php [--depth DEPTH] [--] [<path>]`
