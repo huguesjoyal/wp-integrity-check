@@ -323,11 +323,11 @@ class IntegrityCheckCommand extends Command
         $wpZipMd5File = $wpZipFile . '.md5';
     
         if (! file_exists($wpZipFile)) {
-            file_put_contents($wpZipFile, file_get_contents('https://' . $domain . '/wordpress-' . $version . '.zip'));
+            file_put_contents($wpZipFile, file_get_contents('https://wordpress.org/wordpress-' . $version . '.zip'));
         }
     
         if (! file_exists($wpZipMd5File)) {
-            file_put_contents($wpZipMd5File, file_get_contents('https://' . $domain . '/wordpress-' . $version . '.zip.md5'));
+            file_put_contents($wpZipMd5File, file_get_contents('https://wordpress.org/wordpress-' . $version . '.zip.md5'));
         }
     
         // Checksum
