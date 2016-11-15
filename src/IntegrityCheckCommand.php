@@ -126,7 +126,7 @@ class IntegrityCheckCommand extends Command
                     $fileName = str_replace('\\', '/', str_replace($wpPath, '', $filePath));
                     
                     // Check base files integrity
-                    if ($fileName != 'wp-config.php' && (! preg_match('/^wp-content\/themes\//', $fileName) || preg_match('/^wp-content\/themes\/(twentyfifteen|twentyfourteen|twentysixteen)/', $fileName)) && ! preg_match('/^wp-content\/plugins/', $fileName) && ! preg_match('/^wp-content\/mu-plugins\/Sept24/', $fileName)) {
+                    if ($fileName != 'wp-config.php' && (! preg_match('/^wp-content\/themes\//', $fileName) || preg_match('/^wp-content\/themes\/(twentyfifteen|twentyfourteen|twentysixteen)/', $fileName)) && ! preg_match('/^wp-content\/plugins/', $fileName) ) {
                         
                         $md5sum = md5_file($filePath);
                         
