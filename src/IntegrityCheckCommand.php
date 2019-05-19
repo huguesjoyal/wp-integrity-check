@@ -39,20 +39,20 @@ class IntegrityCheckCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        
+
         // Get the path arguments
         $path = $input->getArgument('path');
-        
+
         // If there is not path, then display help
         if (! $path) {
             $helper = new DescriptorHelper();
             $helper->describe($output, $this);
             return false;
         }
-        
+
         // Get the option
         $depth = $input->getOption('depth');
-        
+
         // Look for wp-version.php in the path
         $output->writeln('<info>Searching for WordPress installation in the path: ' . realpath($path) . '</info>');
         $finder = new Finder();
@@ -61,17 +61,17 @@ class IntegrityCheckCommand extends Command
             ->ignoreDotFiles(true)
             ->ignoreUnreadableDirs(true)
             ->path('/wp-includes\/version.php/');
-        
+
         // Set maximum depth
         if ($depth) {
             $finder->depth($depth + 1);
         }
-        
+
         $files = $finder->in($path);
-        
+
         if ($files->count() > 0) {
             foreach ($files as $file) {
-                
+
                 // We have found a WordPress, so which version is it?
                 $realPath = $file->getRealPath();
                 $wpPath = dirname(dirname($realPath)) . DS;
@@ -79,10 +79,10 @@ class IntegrityCheckCommand extends Command
                 if (preg_match('/\$wp_version = \'(.*)\';/', $content, $matches)) {
                     $version = $matches[1];
                     $output->writeln('WordPress found in path "' . $wpPath . '" version ' . $version);
-                    
+
                     $this->checkCoreIntegrity($wpPath, $version, $output);
                     $this->checkPluginsIntegrity($wpPath, $output);
-                    
+
                     $output->writeln('');
                 }
             }
@@ -93,24 +93,24 @@ class IntegrityCheckCommand extends Command
 
     /**
      * Check WordPress integrity core
-     * 
+     *
      * @param string $wpPath
      *            the WordPress installation path
      * @param string $version
      *            the WordPress installed version
-     * @param OutputInterface $output            
+     * @param OutputInterface $output
      */
     private function checkCoreIntegrity($wpPath, $version, OutputInterface $output)
     {
         if ($this->ensureWPFilesExists($version)) {
-            $output->write('<info>Checking core integrity...</info>');
-            
+            $output->write('<info>Checking core integrity... </info>');
+
             $problems = array();
-            
+
             $wpZipFile = BASE_PATH . '/cache/wordpress-' . $version . '.zip';
             $zip = new \ZipArchive();
             if ($zip->open($wpZipFile) === true) {
-                
+
                 // Verify base files integrity check
                 $finder = new Finder();
                 $finder->files()
@@ -118,18 +118,18 @@ class IntegrityCheckCommand extends Command
                     ->ignoreDotFiles(true)
                     ->ignoreUnreadableDirs(true)
                     ->name('*.php');
-                
+
                 foreach ($finder->in($wpPath) as $file) {
-                    
+
                     // Ignore wp-config
                     $filePath = $file->getRealPath();
                     $fileName = str_replace('\\', '/', str_replace($wpPath, '', $filePath));
-                    
+
                     // Check base files integrity
                     if ($fileName != 'wp-config.php' && (! preg_match('/^wp-content\/themes\//', $fileName) || preg_match('/^wp-content\/themes\/(twentyfifteen|twentyfourteen|twentysixteen)/', $fileName)) && ! preg_match('/^wp-content\/plugins/', $fileName) ) {
-                        
+
                         $md5sum = md5_file($filePath);
-                        
+
                         $content = $zip->getFromName('wordpress/' . $fileName);
                         $md5Content = md5($content);
                         if (! $content && $md5sum != $md5Content) {
@@ -145,19 +145,19 @@ class IntegrityCheckCommand extends Command
                         }
                     }
                 }
-                
+
                 $zip->close();
             }
-            
+
             if (! empty($problems)) {
                 $output->writeln('');
                 $output->writeln("<error>Potentiels problems founds :</error>");
-                
+
                 $columns = array(
                     'File path',
                     'Problem'
                 );
-                
+
                 $table = new Table($output);
                 $table->setHeaders($columns)
                     ->setRows($problems)
@@ -173,10 +173,10 @@ class IntegrityCheckCommand extends Command
 
     /**
      * Check WordPress plugins integrity
-     * 
+     *
      * @param string $wpPath
      *            the WordPress installation path
-     * @param OutputInterface $output            
+     * @param OutputInterface $output
      */
     private function checkPluginsIntegrity($wpPath, OutputInterface $output)
     {
@@ -188,33 +188,33 @@ class IntegrityCheckCommand extends Command
             ->ignoreUnreadableDirs(true)
             ->depth(0)
             ->directories();
-        
+
         foreach ($pluginFinder->in($wpPath . '/wp-content/plugins/') as $plugin) {
             $pluginName = $plugin->getFilename();
             $pluginPath = $plugin->getRealPath();
-            
+
             $version = $this->getPluginVersion($pluginPath);
-            $output->write('Checking plugin - ' . $pluginName . ' ' . $version . '. ');
-            
+            $output->write('<info>Checking plugin - ' . $pluginName . ' ' . $version . '. </info>');
+
             if (! is_dir(BASE_PATH . '/cache/plugins')) {
                 mkdir(BASE_PATH . '/cache/plugins');
             }
-            
+
             $pluginDownloadPath = 'https://downloads.wordpress.org/plugin/' . $pluginName . '.' . $version . '.zip';
             $pluginZipFile = BASE_PATH . '/cache/plugins/' . $pluginName . '.' . $version . '.zip';
-            
+
             // Download the plugin
             if (! file_exists($pluginZipFile)) {
                 file_put_contents($pluginZipFile, file_get_contents($pluginDownloadPath));
             }
-            
+
             if (filesize($pluginZipFile) > 0) {
-                
+
                 $problems = array();
-                
+
                 $zip = new \ZipArchive();
                 if ($zip->open($pluginZipFile) === true) {
-                    
+
                     // Verify base files integrity check
                     $finder = new Finder();
                     $finder->files()
@@ -222,13 +222,13 @@ class IntegrityCheckCommand extends Command
                         ->ignoreDotFiles(true)
                         ->ignoreUnreadableDirs(true)
                         ->name('*.php');
-                    
+
                     foreach ($finder->in($pluginPath) as $file) {
-                        
+
                         // Ignore wp-config
                         $filePath = $file->getRealPath();
                         $fileName = str_replace('\\', '/', str_replace($pluginPath, '', $filePath));
-                        
+
                         // Check base files integrity
                         $md5sum = md5_file($filePath);
                         $content = $zip->getFromName($pluginName . $fileName);
@@ -245,28 +245,32 @@ class IntegrityCheckCommand extends Command
                             );
                         }
                     }
-                    
+
                     $zip->close();
                 }
-                
+
                 // Display plugins problems
-                $output->writeln('');
                 if (! empty($problems)) {
-                    
+
+                    $output->writeln('');
                     $output->writeln("<error>Potentiels problems founds :</error>");
-                    
+
                     $columns = array(
                         'File path',
                         'Problem'
                     );
-                    
+
                     $table = new Table($output);
                     $table->setHeaders($columns)
                         ->setRows($problems)
                         ->render();
-                    
+
                     $output->writeln('');
+
+                } else {
+                    $output->writeln('OK');
                 }
+
             } else {
                 $output->writeln('<error>Could not find plugin integrity package.</error>');
             }
@@ -275,8 +279,8 @@ class IntegrityCheckCommand extends Command
 
     /**
      * Get the plugin version
-     * 
-     * @param string $pluginPath            
+     *
+     * @param string $pluginPath
      * @return string
      */
     private function getPluginVersion($pluginPath)
@@ -288,7 +292,7 @@ class IntegrityCheckCommand extends Command
             ->ignoreUnreadableDirs(true)
             ->depth(0)
             ->name('*.php');
-        
+
         foreach ($finder->in($pluginPath) as $file) {
             if (preg_match('/^[ \t\/*#@]*' . preg_quote('Version', '/') . ':(.*)$/mi', $file->getContents(), $match) && $match[1]) {
                 $trim = trim($match[1]);
@@ -312,24 +316,24 @@ class IntegrityCheckCommand extends Command
         if ($try > $maxTry) {
             return false;
         }
-    
+
         $try ++;
-    
+
         if (! is_dir(BASE_PATH . '/cache')) {
             mkdir(BASE_PATH . '/cache');
         }
-    
+
         $wpZipFile = BASE_PATH . '/cache/wordpress-' . $version . '.zip';
         $wpZipMd5File = $wpZipFile . '.md5';
-    
+
         if (! file_exists($wpZipFile)) {
             file_put_contents($wpZipFile, file_get_contents('https://wordpress.org/wordpress-' . $version . '.zip'));
         }
-    
+
         if (! file_exists($wpZipMd5File)) {
             file_put_contents($wpZipMd5File, file_get_contents('https://wordpress.org/wordpress-' . $version . '.zip.md5'));
         }
-    
+
         // Checksum
         $checksum = md5_file($wpZipFile);
         if ($checksum != file_get_contents($wpZipMd5File)) {
@@ -337,9 +341,9 @@ class IntegrityCheckCommand extends Command
             @unlink($wpZipMd5File);
             return $this->ensureWPFilesExists($version, $try);
         }
-    
+
         return true;
     }
-    
-    
+
+
 }
